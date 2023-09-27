@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.18.0",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.0",
+    "libraryName": "spfx-list-app",
+    "libraryId": "a0c9801e-fa75-4618-8bc9-992ade22b3b4",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-list-app",
+    "solutionShortDescription": "spfx-list-app description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
