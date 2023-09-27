@@ -1,16 +1,28 @@
-import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import { Version } from '@microsoft/sp-core-library';
+import { Version } from "@microsoft/sp-core-library";
 import {
+  PropertyPaneTextField,
   type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
-import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-import * as strings from 'SpfxListAppWebPartStrings';
-import { ISpListItem, MS_GRAPH_URL_SP_SITE } from "sp-list-app/lib/model/IListItem";
-import { IListItemsProps, ListItems } from "sp-list-app/lib/components/ListItems";
-import { GraphODataPagedDataProvider, IPagedDataProvider } from 'sp-list-app/node_modules/mgwdev-m365-helpers/lib/dal';
-import {IHttpClient, SPFxGraphHttpClient } from 'sp-list-app/node_modules/mgwdev-m365-helpers';
+} from "@microsoft/sp-property-pane";
+import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import * as strings from "SpfxListAppWebPartStrings";
+import * as React from "react";
+import * as ReactDom from "react-dom";
+import {
+  IListItemsProps,
+  ListItems,
+} from "sp-list-app/lib/components/ListItems";
+import {
+  ISpListItem,
+  MS_GRAPH_URL_SP_SITE,
+} from "sp-list-app/lib/model/IListItem";
+import {
+  IHttpClient,
+  SPFxGraphHttpClient,
+} from "sp-list-app/node_modules/mgwdev-m365-helpers";
+import {
+  GraphODataPagedDataProvider,
+  IPagedDataProvider,
+} from "sp-list-app/node_modules/mgwdev-m365-helpers/lib/dal";
 
 export interface ISpfxListAppWebPartProps {
   description: string;
@@ -21,9 +33,15 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
   private _graphClient: IHttpClient;
 
   protected async onInit(): Promise<void> {
-    const aadHttpClient = await this.context.aadHttpClientFactory.getClient('https://graph.microsoft.com');
+    const aadHttpClient = await this.context.aadHttpClientFactory.getClient(
+      "https://graph.microsoft.com"
+    );
     const spfxGraphHttpClient = new SPFxGraphHttpClient(aadHttpClient);
-    this._dataProvider = new GraphODataPagedDataProvider(spfxGraphHttpClient, MS_GRAPH_URL_SP_SITE, true);
+    this._dataProvider = new GraphODataPagedDataProvider(
+      spfxGraphHttpClient,
+      MS_GRAPH_URL_SP_SITE,
+      true
+    );
     this._graphClient = spfxGraphHttpClient;
   }
 
@@ -44,7 +62,7 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse("1.0");
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -52,20 +70,20 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: strings.PropertyPaneDescription,
           },
           groups: [
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
-                })
-              ]
-            }
-          ]
-        }
-      ]
+                PropertyPaneTextField("description", {
+                  label: strings.DescriptionFieldLabel,
+                }),
+              ],
+            },
+          ],
+        },
+      ],
     };
   }
 }
