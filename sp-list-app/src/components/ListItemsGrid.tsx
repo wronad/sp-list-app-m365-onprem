@@ -6,7 +6,7 @@ export interface IListItemGridProps {
   rows: IListItem[];
 }
 
-export function ListItemsGrid(props: IListItemGridProps) {
+export const ListItemsGrid = (props: IListItemGridProps) => {
   return (
     <table>
       <tr>
@@ -23,4 +23,4 @@ export function ListItemsGrid(props: IListItemGridProps) {
       </>
     </table>
   );
-}
+};

@@ -12,7 +12,7 @@ import {
   ListItems,
 } from "sp-list-app/lib/components/ListItems";
 import {
-  ISpListItem,
+  ISpListItemPayload,
   MS_GRAPH_URL_SP_SITE,
 } from "sp-list-app/lib/model/IListItem";
 import {
@@ -29,7 +29,7 @@ export interface ISpfxListAppWebPartProps {
 }
 
 export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListAppWebPartProps> {
-  private _dataProvider: IPagedDataProvider<ISpListItem>;
+  private _dataProvider: IPagedDataProvider<ISpListItemPayload>;
   private _graphClient: IHttpClient;
 
   protected async onInit(): Promise<void> {
@@ -53,8 +53,8 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
     const element: React.ReactElement<IListItemsProps> = React.createElement(
       ListItems,
       {
-        dataProvider: this._dataProvider,
-        graphClient: this._graphClient,
+        spOnlineDataProvider: this._dataProvider,
+        spOnlineClient: this._graphClient,
       }
     );
 

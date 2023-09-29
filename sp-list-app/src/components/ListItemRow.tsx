@@ -5,7 +5,7 @@ export interface IListItemRowProps {
   row: IListItem;
 }
 
-export function ListItemRow(props: IListItemRowProps) {
+export const ListItemRow = (props: IListItemRowProps) => {
   return (
     <tr key={props.row.id}>
       <td>{props.row.id}</td>
@@ -15,4 +15,4 @@ export function ListItemRow(props: IListItemRowProps) {
       <td>{props.row.targetAudience}</td>
     </tr>
   );
-}
+};

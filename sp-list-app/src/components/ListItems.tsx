@@ -3,77 +3,78 @@ import { IPagedDataProvider } from "mgwdev-m365-helpers/lib/dal/dataProviders";
 import { IHttpClient } from "mgwdev-m365-helpers/lib/dal/http";
 import * as React from "react";
 import {
-  COURSE_CODE,
-  COURSE_NAME,
   IListItem,
-  ISpListItem,
-  SP_LIST_URL,
+  ISpListItemPayload,
   extractSpListItems,
+  mockNewListItem,
 } from "../model/IListItem";
+import {
+  addListItemOnLine,
+  getListItemsOnLine,
+  getListItemsOnPrem,
+} from "../services/SpListService";
 import { ListItemsGrid } from "./ListItemsGrid";
 
 export interface IListItemsProps {
-  dataProvider?: IPagedDataProvider<ISpListItem>;
-  graphClient?: IHttpClient;
+  spOnlineDataProvider?: IPagedDataProvider<ISpListItemPayload>;
+  spOnlineClient?: IHttpClient;
 }
 
-export function ListItems(props: IListItemsProps) {
+export const ListItems = (props: IListItemsProps) => {
   const [items, setItems] = React.useState<IListItem[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [count, setCount] = React.useState<number>(0);
 
-  React.useEffect(() => {
-    props.dataProvider.getData().then((data) => {
-      const listItems = extractSpListItems(data);
-      setItems(listItems);
-      setLoading(false);
+  const fetchDataOnline = async () => {
+    getListItemsOnLine(props.spOnlineDataProvider).then((spListItems) => {
+      if (spListItems) {
+        const listItems = extractSpListItems(spListItems);
+        setItems(listItems);
+        setLoading(false);
+      }
     });
+  };
+
+  const fetchDataOnPrem = async () => {
+    getListItemsOnPrem().then((spListItems) => {
+      if (spListItems) {
+        const stop = 1;
+      }
+    });
+  };
+
+  const fetchData = async () => {
+    if (props.spOnlineClient) {
+      fetchDataOnline();
+    } else {
+      fetchDataOnPrem();
+    }
+  };
+
+  React.useEffect(() => {
+    fetchData();
   }, []);
 
   React.useEffect(() => {
     if (count > 0) {
-      props.dataProvider.getData().then((data) => {
-        const listItems = extractSpListItems(data);
-        setItems(listItems);
-        setLoading(false);
-      });
+      fetchData();
     }
   }, [count]);
 
-  function addItem() {
-    if (props.graphClient) {
+  const addItem = () => {
+    if (props.spOnlineClient) {
       console.log("adding item to list...");
       const plus1 = count + 1;
-      const postItem = {
-        fields: {
-          Title: `${COURSE_NAME} - ${plus1}`,
-          COURSE_CODE: `${COURSE_CODE} - ${plus1}`,
-          COURSE_FREQUENCY: "Card Holder",
-          TARGET_AUDIENCE: "Initial",
-        },
-      };
-
-      // const itemsArr: any[] = [ postItem ];
-
-      const spOpts = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postItem),
-      };
-      // console.log("posting: ", spOpts.body)
-      // props.aadClient.post(SP_LIST_URL, AadHttpClient.configurations.v1, spOpts)
-      props.graphClient
-        .post(SP_LIST_URL, spOpts)
+      const mockItem = mockNewListItem(plus1);
+      addListItemOnLine(props.spOnlineClient, mockItem)
         .then((resp) => {
-          console.log(JSON.stringify(resp));
           setCount(plus1);
         })
         .catch((err) => {
           console.log(JSON.stringify(err));
         });
     }
-  }
+  };
 
   if (loading) {
     return <Spinner />;
@@ -94,4 +95,4 @@ export function ListItems(props: IListItemsProps) {
       </button>
     </>
   );
-}
+};

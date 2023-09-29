@@ -1,26 +1,29 @@
 export interface IListItem {
   id?: number;
-  courseName: string;
+  courseName: string; // Title
   courseCode: string;
   courseFrequency: string;
   targetAudience: string;
 }
 
-export interface ISpListItem {
+export interface ISpListItemPayload {
   id: string;
   webUrl: string;
   siteId: string;
   fields: any;
 }
 
-// export interface ISpListItemWritePayload {
-//     fields: {
-//         courseName: string;
-//         courseCode: string;
-//         courseFrequency: string;
-//         targetAudience: string;
-//     }
-// }
+export const bundleBody = (item: IListItem): string => {
+  const spListItemFields = {
+    fields: {
+      Title: item[COURSE_NAME], // COURSE_NAME - SP list column
+      COURSE_CODE: item[COURSE_CODE],
+      COURSE_FREQUENCY: item[COURSE_FREQUENCY],
+      TARGET_AUDIENCE: item[TARGET_AUDIENCE],
+    },
+  };
+  return JSON.stringify(spListItemFields);
+};
 
 export const SP_SITE = "8r1bcm.sharepoint.com";
 
@@ -49,53 +52,38 @@ export const SP_LIST_URL =
 //'https://8r1bcm.sharepoint.com/Lists/ccUsersTrainingCourses/items';
 //'8r1bcm.sharepoint.com';
 
-// export const LIST_COLS = [
-//     'id',
-//     'COURSE_NAME',
-//     'COURSE_CODE',
-//     'COURSE_FREQUENCY',
-//     'TARGET_AUDIENCE',
-// ];
+export const ID = "id";
+export const COURSE_NAME = "COURSE_NAME"; // Title - SP list column
+export const COURSE_CODE = "COURSE_CODE";
+export const COURSE_FREQUENCY = "COURSE_FREQUENCY";
+export const TARGET_AUDIENCE = "TARGET_AUDIENCE";
 
-// export interface IListItemPayload {
-//     header?: any;
-//     body: IListItem;
-// }
+export const COURSE_NUM = "Course No ";
+export const CODE_NUM = "Course Code ";
 
-// export function createItem(num: number) {
-
-// }
-
-export const COURSE_NAME = "Course No ";
-export const COURSE_CODE = "Course Code ";
-
-// export const newItem: IListItem = {
-//     courseName: COURSE_NAME,
-//     courseCode: COURSE_CODE,
-//     courseFrequency: 'Annual',
-//     targetAudience: 'PBO'
-// }
-
-const COL_MAP = {
-  id: "id",
-  courseName: "Title", // COURSE_NAME
-  courseCode: "COURSE_CODE",
-  courseFrequency: "COURSE_FREQUENCY",
-  targetAudience: "TARGET_AUDIENCE",
-};
-
-export function extractSpListItems(spListItems: ISpListItem[]): IListItem[] {
-  const items: IListItem[] = [];
+export const extractSpListItems = (
+  spListItems: ISpListItemPayload[]
+): IListItem[] => {
+  let items: IListItem[] = [];
   if (spListItems && spListItems.length) {
-    spListItems.forEach((spItem) => {
-      items.push({
-        id: spItem.fields[COL_MAP.id],
-        courseName: spItem.fields[COL_MAP.courseName],
-        courseCode: spItem.fields[COL_MAP.courseCode],
-        courseFrequency: spItem.fields[COL_MAP.courseFrequency],
-        targetAudience: spItem.fields[COL_MAP.targetAudience],
-      });
+    items = spListItems.map((spItem) => {
+      return {
+        id: spItem.fields[ID],
+        courseName: spItem.fields[COURSE_NAME],
+        courseCode: spItem.fields[COURSE_CODE],
+        courseFrequency: spItem.fields[COURSE_FREQUENCY],
+        targetAudience: spItem.fields[TARGET_AUDIENCE],
+      };
     });
   }
   return items;
-}
+};
+
+export const mockNewListItem = (num: number): any => {
+  return {
+    COURSE_NAME: `${COURSE_NUM} - ${num}`,
+    COURSE_CODE: `${CODE_NUM} - ${num}`,
+    COURSE_FREQUENCY: "Card Holder",
+    TARGET_AUDIENCE: "Initial",
+  };
+};
