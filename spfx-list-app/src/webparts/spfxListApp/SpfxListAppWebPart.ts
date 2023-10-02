@@ -13,7 +13,7 @@ import {
 } from "sp-list-app/lib/components/ListItems";
 import {
   ISpListItemPayload,
-  MS_GRAPH_URL_SP_SITE,
+  MS_GRAPH_SP_LIST_FIELDS,
 } from "sp-list-app/lib/model/IListItem";
 import {
   IHttpClient,
@@ -39,7 +39,7 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
     const spfxGraphHttpClient = new SPFxGraphHttpClient(aadHttpClient);
     this._dataProvider = new GraphODataPagedDataProvider(
       spfxGraphHttpClient,
-      MS_GRAPH_URL_SP_SITE,
+      MS_GRAPH_SP_LIST_FIELDS,
       true
     );
     this._graphClient = spfxGraphHttpClient;

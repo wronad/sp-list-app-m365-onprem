@@ -9,9 +9,10 @@ import {
   mockNewListItem,
 } from "../model/IListItem";
 import {
-  addListItemOnLine,
-  getListItemsOnLine,
+  addListItemOnPrem,
+  addListItemOnline,
   getListItemsOnPrem,
+  getListItemsOnline,
 } from "../services/SpListService";
 import { ListItemsGrid } from "./ListItemsGrid";
 
@@ -25,8 +26,26 @@ export const ListItems = (props: IListItemsProps) => {
   const [loading, setLoading] = React.useState<boolean>(true);
   const [count, setCount] = React.useState<number>(0);
 
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  React.useEffect(() => {
+    if (count > 0) {
+      fetchData();
+    }
+  }, [count]);
+
+  const fetchData = async () => {
+    if (props.spOnlineClient) {
+      fetchDataOnline();
+    } else {
+      fetchDataOnPrem();
+    }
+  };
+
   const fetchDataOnline = async () => {
-    getListItemsOnLine(props.spOnlineDataProvider).then((spListItems) => {
+    getListItemsOnline(props.spOnlineDataProvider).then((spListItems) => {
       if (spListItems) {
         const listItems = extractSpListItems(spListItems);
         setItems(listItems);
@@ -38,42 +57,41 @@ export const ListItems = (props: IListItemsProps) => {
   const fetchDataOnPrem = async () => {
     getListItemsOnPrem().then((spListItems) => {
       if (spListItems) {
-        const stop = 1;
+        const debugThis = 1;
       }
     });
   };
 
-  const fetchData = async () => {
+  const addItem = () => {
+    console.log("adding item to list...");
+    const plus1 = count + 1;
+    const mockItem = mockNewListItem(plus1);
     if (props.spOnlineClient) {
-      fetchDataOnline();
+      addItemOnline(mockItem, plus1);
     } else {
-      fetchDataOnPrem();
+      addItemOnPrem(mockItem, plus1);
     }
   };
 
-  React.useEffect(() => {
-    fetchData();
-  }, []);
+  const addItemOnline = (item: IListItem, num: number) => {
+    addListItemOnline(props.spOnlineClient, item)
+      .then((resp) => {
+        setCount(num);
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+      });
+  };
 
-  React.useEffect(() => {
-    if (count > 0) {
-      fetchData();
-    }
-  }, [count]);
-
-  const addItem = () => {
-    if (props.spOnlineClient) {
-      console.log("adding item to list...");
-      const plus1 = count + 1;
-      const mockItem = mockNewListItem(plus1);
-      addListItemOnLine(props.spOnlineClient, mockItem)
-        .then((resp) => {
-          setCount(plus1);
-        })
-        .catch((err) => {
-          console.log(JSON.stringify(err));
-        });
-    }
+  const addItemOnPrem = (item: IListItem, num: number) => {
+    addListItemOnPrem(item)
+      .then((resp) => {
+        const debugThis = 2;
+        setCount(num);
+      })
+      .catch((err) => {
+        console.log(JSON.stringify(err));
+      });
   };
 
   if (loading) {

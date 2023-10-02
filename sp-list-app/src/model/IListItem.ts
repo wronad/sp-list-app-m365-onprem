@@ -13,7 +13,7 @@ export interface ISpListItemPayload {
   fields: any;
 }
 
-export const bundleBody = (item: IListItem): string => {
+export const bundleBodyForOnline = (item: IListItem): string => {
   const spListItemFields = {
     fields: {
       Title: item[COURSE_NAME], // COURSE_NAME - SP list column
@@ -25,6 +25,22 @@ export const bundleBody = (item: IListItem): string => {
   return JSON.stringify(spListItemFields);
 };
 
+export const bundleDataForOnPrem = (
+  item: IListItem,
+  itemType: string
+): string => {
+  const data = {
+    __metadata: {
+      type: itemType,
+    },
+    Title: item[COURSE_NAME], // COURSE_NAME - SP list column
+    COURSE_CODE: item[COURSE_CODE],
+    COURSE_FREQUENCY: item[COURSE_FREQUENCY],
+    TARGET_AUDIENCE: item[TARGET_AUDIENCE],
+  };
+  return JSON.stringify(data);
+};
+
 export const SP_SITE = "8r1bcm.sharepoint.com";
 
 // https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView
@@ -33,19 +49,20 @@ export const TENANT_ID = "bd04e98d-f006-4879-9451-b1096f9d1d03";
 // https://8r1bcm.sharepoint.com/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
 export const LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
 
-export const MS_GRAPH_URL_SP_SITE =
-  "https://graph.microsoft.com/v1.0/sites/" +
-  SP_SITE +
-  "/lists/" +
-  LIST_ID +
-  "/items?expand=fields&"; // TODO $select=col-one,col-two,coln-n&
-
-export const SP_LIST_URL =
+export const MS_GRAPH_SP_LIST =
   "https://graph.microsoft.com/v1.0/sites/" +
   SP_SITE +
   "/lists/" +
   LIST_ID +
   "/items";
+
+// TODO $select=col-one,col-two,coln-n&
+export const MS_GRAPH_SP_LIST_FIELDS =
+  "https://graph.microsoft.com/v1.0/sites/" +
+  SP_SITE +
+  "/lists/" +
+  LIST_ID +
+  "/items?expand=fields&";
 
 // '/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D';
 

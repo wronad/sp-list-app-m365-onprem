@@ -7,24 +7,12 @@ import {
 import {
   IListItem,
   ISpListItemPayload,
-  SP_LIST_URL,
-  bundleBody,
+  MS_GRAPH_SP_LIST,
+  bundleBodyForOnline,
+  bundleDataForOnPrem,
 } from "../model/IListItem";
 
-export const SITE_URL = "https://8r1bcm.sharepoint.com";
-export const LISTS_URL = SITE_URL + "/_api/web/lists";
-const LIST_NAME = "ListAppExample";
-
-const axiosCfg = {
-  headers: {
-    Accept: "application/json;odata=verbose",
-    "Content-Type": "application/json;odata=verbose",
-  },
-};
-
-const spListApi = axios.create({
-  baseURL: SITE_URL,
-});
+// SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
 const SP_OPTS = {
   headers: {
@@ -33,27 +21,43 @@ const SP_OPTS = {
   body: "",
 };
 
-// SP MS 365 / Online /////////////////////////////////////////////////////////////////
-
-export const getListItemsOnLine = async (
+export const getListItemsOnline = async (
   dataProvider: IPagedDataProvider<ISpListItemPayload>
 ): Promise<ISpListItemPayload[]> => {
   return dataProvider.getData();
 };
 
-export const addListItemOnLine = async (
+export const addListItemOnline = async (
   spOnlineClient: IHttpClient,
   listItem: IListItem
 ): Promise<IHttpClientResponse> => {
-  SP_OPTS.body = bundleBody(listItem);
-  return spOnlineClient.post(SP_LIST_URL, SP_OPTS);
+  SP_OPTS.body = bundleBodyForOnline(listItem);
+  return spOnlineClient.post(MS_GRAPH_SP_LIST, SP_OPTS);
 };
 
 // SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
 
+const LIST_NAME = "ListAppExample";
+
+const SITE_URL = "https://8r1bcm.sharepoint.com";
+const LISTS_URL = SITE_URL + "/_api/web/lists";
+const SP_LIST = `${LISTS_URL}/GetByTitle('${LIST_NAME}')/items`;
+const ITEM_TYPE = `SP.Data.${SP_LIST}ListItem`;
+
+const axiosCfg = {
+  headers: {
+    accept: "application/json;odata=verbose",
+    "content-type": "application/json;odata=verbose",
+  },
+};
+
+const spListApi = axios.create({
+  baseURL: SITE_URL,
+});
+
 export const getListItemsOnPrem = async () => {
   return spListApi
-    .get(`${LISTS_URL}/GetByTitle('${LIST_NAME}')`, axiosCfg)
+    .get(SP_LIST, axiosCfg)
     .then((resp) => {
       console.log("Response");
       console.log(resp);
@@ -65,7 +69,17 @@ export const getListItemsOnPrem = async () => {
     });
 };
 
-// export const AddListItemsOnPrem = async (
-// ): Promise<ISpListItem[]> => {
-//   // return dataProvider.getData();
-// };
+export const addListItemOnPrem = async (listItem: IListItem) => {
+  const data = bundleDataForOnPrem(listItem, ITEM_TYPE);
+  return spListApi
+    .post(SP_LIST, data, axiosCfg)
+    .then((resp) => {
+      console.log("Response");
+      console.log(resp);
+      return resp;
+    })
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+};
