@@ -1,3 +1,9 @@
+const ID = "id";
+const COURSE_NAME = "COURSE_NAME"; // Title - SP list column
+const COURSE_CODE = "COURSE_CODE";
+const COURSE_FREQUENCY = "COURSE_FREQUENCY";
+const TARGET_AUDIENCE = "TARGET_AUDIENCE";
+
 export interface IListItem {
   id?: number;
   courseName: string; // Title
@@ -41,43 +47,6 @@ export const bundleDataForOnPrem = (
   return JSON.stringify(data);
 };
 
-export const SP_SITE = "8r1bcm.sharepoint.com";
-
-// https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView
-export const TENANT_ID = "bd04e98d-f006-4879-9451-b1096f9d1d03";
-
-// https://8r1bcm.sharepoint.com/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
-export const LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
-
-export const MS_GRAPH_SP_LIST =
-  "https://graph.microsoft.com/v1.0/sites/" +
-  SP_SITE +
-  "/lists/" +
-  LIST_ID +
-  "/items";
-
-// TODO $select=col-one,col-two,coln-n&
-export const MS_GRAPH_SP_LIST_FIELDS =
-  "https://graph.microsoft.com/v1.0/sites/" +
-  SP_SITE +
-  "/lists/" +
-  LIST_ID +
-  "/items?expand=fields&";
-
-// '/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D';
-
-//'https://8r1bcm.sharepoint.com/Lists/ccUsersTrainingCourses/items';
-//'8r1bcm.sharepoint.com';
-
-export const ID = "id";
-export const COURSE_NAME = "COURSE_NAME"; // Title - SP list column
-export const COURSE_CODE = "COURSE_CODE";
-export const COURSE_FREQUENCY = "COURSE_FREQUENCY";
-export const TARGET_AUDIENCE = "TARGET_AUDIENCE";
-
-export const COURSE_NUM = "Course No ";
-export const CODE_NUM = "Course Code ";
-
 export const extractSpListItems = (
   spListItems: ISpListItemPayload[]
 ): IListItem[] => {
@@ -97,10 +66,10 @@ export const extractSpListItems = (
 };
 
 export const mockNewListItem = (num: number): any => {
-  return {
-    COURSE_NAME: `${COURSE_NUM} - ${num}`,
-    COURSE_CODE: `${CODE_NUM} - ${num}`,
-    COURSE_FREQUENCY: "Card Holder",
-    TARGET_AUDIENCE: "Initial",
-  };
+  const mock = {};
+  mock[COURSE_NAME] = `Course No - ${num}`;
+  mock[COURSE_CODE] = `Course Code - ${num}`;
+  mock[COURSE_FREQUENCY] = "Card Holder";
+  mock[TARGET_AUDIENCE] = "Initial";
+  return mock;
 };

@@ -58,6 +58,7 @@ export const ListItems = (props: IListItemsProps) => {
     getListItemsOnPrem().then((spListItems) => {
       if (spListItems) {
         const debugThis = 1;
+        console.log(JSON.stringify(spListItems));
       }
     });
   };
@@ -87,6 +88,7 @@ export const ListItems = (props: IListItemsProps) => {
     addListItemOnPrem(item)
       .then((resp) => {
         const debugThis = 2;
+        console.log(JSON.stringify(resp));
         setCount(num);
       })
       .catch((err) => {

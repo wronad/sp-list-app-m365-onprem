@@ -7,12 +7,37 @@ import {
 import {
   IListItem,
   ISpListItemPayload,
-  MS_GRAPH_SP_LIST,
   bundleBodyForOnline,
   bundleDataForOnPrem,
 } from "../model/IListItem";
 
+// '/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D';
+
+//'https://8r1bcm.sharepoint.com/Lists/ccUsersTrainingCourses/items';
+//'8r1bcm.sharepoint.com';
+
+// https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView
+// const TENANT_ID = "bd04e98d-f006-4879-9451-b1096f9d1d03";
+
+// https://8r1bcm.sharepoint.com/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
+const LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
+
+const SP_SITE = "8r1bcm.sharepoint.com";
+export const SITE_URL = `https://${SP_SITE}`;
+
+export const MS_GRAPH = "https://graph.microsoft.com";
+
+// TODO $select=col-one,col-two,coln-n&
+export const MS_GRAPH_SP_LIST_FIELDS = `${MS_GRAPH}/v1.0/sites/${SP_SITE}/lists/${LIST_ID}/items?expand=fields&`;
+
 // SP MS 365 / Online /////////////////////////////////////////////////////////////////
+
+const MS_GRAPH_SP_LIST =
+  "https://graph.microsoft.com/v1.0/sites/" +
+  SP_SITE +
+  "/lists/" +
+  LIST_ID +
+  "/items";
 
 const SP_OPTS = {
   headers: {
@@ -38,11 +63,8 @@ export const addListItemOnline = async (
 // SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
 
 const LIST_NAME = "ListAppExample";
-
-const SITE_URL = "https://8r1bcm.sharepoint.com";
-const LISTS_URL = SITE_URL + "/_api/web/lists";
-const SP_LIST = `${LISTS_URL}/GetByTitle('${LIST_NAME}')/items`;
-const ITEM_TYPE = `SP.Data.${SP_LIST}ListItem`;
+const SP_LIST = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
+const ITEM_TYPE = `SP.Data.${LIST_NAME}ListItem`;
 
 const axiosCfg = {
   headers: {

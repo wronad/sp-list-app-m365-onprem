@@ -11,10 +11,11 @@ import {
   IListItemsProps,
   ListItems,
 } from "sp-list-app/lib/components/ListItems";
+import { ISpListItemPayload } from "sp-list-app/lib/model/IListItem";
 import {
-  ISpListItemPayload,
+  MS_GRAPH,
   MS_GRAPH_SP_LIST_FIELDS,
-} from "sp-list-app/lib/model/IListItem";
+} from "sp-list-app/lib/services/SpListService";
 import {
   IHttpClient,
   SPFxGraphHttpClient,
@@ -34,7 +35,7 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
 
   protected async onInit(): Promise<void> {
     const aadHttpClient = await this.context.aadHttpClientFactory.getClient(
-      "https://graph.microsoft.com"
+      MS_GRAPH
     );
     const spfxGraphHttpClient = new SPFxGraphHttpClient(aadHttpClient);
     this._dataProvider = new GraphODataPagedDataProvider(
