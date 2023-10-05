@@ -1,4 +1,3 @@
-const ID = "id";
 const COURSE_NAME = "COURSE_NAME"; // Title - SP list column
 const COURSE_CODE = "COURSE_CODE";
 const COURSE_FREQUENCY = "COURSE_FREQUENCY";
@@ -12,11 +11,19 @@ export interface IListItem {
   targetAudience: string;
 }
 
-export interface ISpListItemPayload {
+export interface IListItemPayloadOnline {
   id: string;
   webUrl: string;
   siteId: string;
   fields: any;
+}
+
+export interface IListItemPayloadOnPrem {
+  data: {
+    d: {
+      results: any[];
+    };
+  };
 }
 
 export const bundleBodyForOnline = (item: IListItem): string => {
@@ -48,20 +55,42 @@ export const bundleDataForOnPrem = (
 };
 
 export const extractSpListItems = (
-  spListItems: ISpListItemPayload[]
+  spResponse: any,
+  spOnline: boolean
 ): IListItem[] => {
   let items: IListItem[] = [];
-  if (spListItems && spListItems.length) {
-    items = spListItems.map((spItem) => {
-      return {
-        id: spItem.fields[ID],
-        courseName: spItem.fields[COURSE_NAME],
-        courseCode: spItem.fields[COURSE_CODE],
-        courseFrequency: spItem.fields[COURSE_FREQUENCY],
-        targetAudience: spItem.fields[TARGET_AUDIENCE],
-      };
-    });
+  let listItems: any[] = [];
+
+  if (spOnline) {
+    if (spResponse?.length) {
+      listItems = spResponse;
+    }
+  } else if (spResponse?.data?.d?.results?.length) {
+    listItems = spResponse.data.d.results;
   }
+
+  items = listItems.map((item) => {
+    let itemData = undefined;
+    let id = "Id";
+    if (spOnline) {
+      id = "id";
+      const onlineItem: IListItemPayloadOnline = item;
+      itemData = onlineItem.fields;
+    } else {
+      const onPremItem: IListItemPayloadOnPrem = item;
+      itemData = onPremItem;
+    }
+    if (itemData) {
+      return {
+        id: itemData[id],
+        courseName: itemData.Title,
+        courseCode: itemData[COURSE_CODE],
+        courseFrequency: itemData[COURSE_FREQUENCY],
+        targetAudience: itemData[TARGET_AUDIENCE],
+      };
+    }
+  });
+
   return items;
 };
 

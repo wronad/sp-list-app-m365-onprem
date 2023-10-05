@@ -4,7 +4,7 @@ import { IHttpClient } from "mgwdev-m365-helpers/lib/dal/http";
 import * as React from "react";
 import {
   IListItem,
-  ISpListItemPayload,
+  IListItemPayloadOnline,
   extractSpListItems,
   mockNewListItem,
 } from "../model/IListItem";
@@ -17,26 +17,26 @@ import {
 import { ListItemsGrid } from "./ListItemsGrid";
 
 export interface IListItemsProps {
-  spOnlineDataProvider?: IPagedDataProvider<ISpListItemPayload>;
+  spOnlineDataProvider?: IPagedDataProvider<IListItemPayloadOnline>;
   spOnlineClient?: IHttpClient;
 }
 
 export const ListItems = (props: IListItemsProps) => {
+  const [count, setCount] = React.useState<number>(0);
   const [items, setItems] = React.useState<IListItem[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const [count, setCount] = React.useState<number>(0);
 
   React.useEffect(() => {
-    fetchData();
-  }, []);
-
-  React.useEffect(() => {
-    if (count > 0) {
+    if (loading) {
       fetchData();
     }
-  }, [count]);
+  }, [loading]);
 
-  const fetchData = async () => {
+  React.useEffect(() => {
+    setLoading(false);
+  }, [items]);
+
+  const fetchData = () => {
     if (props.spOnlineClient) {
       fetchDataOnline();
     } else {
@@ -44,27 +44,26 @@ export const ListItems = (props: IListItemsProps) => {
     }
   };
 
-  const fetchDataOnline = async () => {
+  const fetchDataOnline = () => {
     getListItemsOnline(props.spOnlineDataProvider).then((spListItems) => {
-      if (spListItems) {
-        const listItems = extractSpListItems(spListItems);
-        setItems(listItems);
-        setLoading(false);
-      }
+      itemsFetched(spListItems, true);
     });
   };
 
-  const fetchDataOnPrem = async () => {
+  const fetchDataOnPrem = () => {
     getListItemsOnPrem().then((spListItems) => {
-      if (spListItems) {
-        const debugThis = 1;
-        console.log(JSON.stringify(spListItems));
-      }
+      itemsFetched(spListItems, false);
     });
+  };
+
+  const itemsFetched = (spListItems: any, spOnline: boolean) => {
+    if (spListItems) {
+      const listItems = extractSpListItems(spListItems, spOnline);
+      setItems(listItems);
+    }
   };
 
   const addItem = () => {
-    console.log("adding item to list...");
     const plus1 = count + 1;
     const mockItem = mockNewListItem(plus1);
     if (props.spOnlineClient) {
@@ -76,43 +75,41 @@ export const ListItems = (props: IListItemsProps) => {
 
   const addItemOnline = (item: IListItem, num: number) => {
     addListItemOnline(props.spOnlineClient, item)
-      .then((resp) => {
-        setCount(num);
-      })
-      .catch((err) => {
-        console.log(JSON.stringify(err));
-      });
+      .then((resp) => handleItemAdded(num))
+      .catch((err) => console.log(JSON.stringify(err)));
   };
 
   const addItemOnPrem = (item: IListItem, num: number) => {
     addListItemOnPrem(item)
-      .then((resp) => {
-        const debugThis = 2;
-        console.log(JSON.stringify(resp));
-        setCount(num);
-      })
-      .catch((err) => {
-        console.log(JSON.stringify(err));
-      });
+      .then((resp) => handleItemAdded(num))
+      .catch((err) => console.log(JSON.stringify(err)));
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  const handleItemAdded = (num: number) => {
+    setLoading(true);
+    setCount(num);
+  };
+
   return (
     <>
-      <ListItemsGrid rows={items} />
-      <br></br>
-      <br></br>
-      <br></br>
-      <button
-        type="button"
-        onClick={() => {
-          addItem();
-        }}
-      >
-        Add Item to SP List
-      </button>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <ListItemsGrid rows={items} />
+          <br></br>
+          <br></br>
+          <br></br>
+          <button
+            type="button"
+            onClick={() => {
+              addItem();
+            }}
+          >
+            Add Item to SP List
+          </button>
+        </>
+      )}
     </>
   );
 };

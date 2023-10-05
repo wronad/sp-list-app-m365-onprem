@@ -6,7 +6,7 @@ import {
 } from "mgwdev-m365-helpers/lib/dal/http";
 import {
   IListItem,
-  ISpListItemPayload,
+  IListItemPayloadOnline,
   bundleBodyForOnline,
   bundleDataForOnPrem,
 } from "../model/IListItem";
@@ -22,15 +22,16 @@ import {
 // https://8r1bcm.sharepoint.com/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
 const LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
 
-const SP_SITE = "8r1bcm.sharepoint.com";
-export const SITE_URL = `https://${SP_SITE}`;
+// TODO add as build param
+// const SP_SITE = "8r1bcm.sharepoint.com";
+const SP_SITE = "sp-onprem:3110/dev-site"; // MS Azure
+// const SP_SITE = "soceur.sof.socom.smil.mil/ppws/sandbox/ReactApps";
+
+// SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
 export const MS_GRAPH = "https://graph.microsoft.com";
 
-// TODO $select=col-one,col-two,coln-n&
 export const MS_GRAPH_SP_LIST_FIELDS = `${MS_GRAPH}/v1.0/sites/${SP_SITE}/lists/${LIST_ID}/items?expand=fields&`;
-
-// SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
 const MS_GRAPH_SP_LIST =
   "https://graph.microsoft.com/v1.0/sites/" +
@@ -47,8 +48,8 @@ const SP_OPTS = {
 };
 
 export const getListItemsOnline = async (
-  dataProvider: IPagedDataProvider<ISpListItemPayload>
-): Promise<ISpListItemPayload[]> => {
+  dataProvider: IPagedDataProvider<IListItemPayloadOnline>
+): Promise<IListItemPayloadOnline[]> => {
   return dataProvider.getData();
 };
 
@@ -63,7 +64,11 @@ export const addListItemOnline = async (
 // SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
 
 const LIST_NAME = "ListAppExample";
+const SITE_URL = `http://${SP_SITE}`; // MS Azure
+// const SITE_URL = `https://${SP_SITE}`;
 const SP_LIST = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
+
+// http://${SP_SITE}/_api/web/lists/getbytitle('ListAppExample')/ListItemEntityTypeFullName
 const ITEM_TYPE = `SP.Data.${LIST_NAME}ListItem`;
 
 const axiosCfg = {
@@ -91,17 +96,32 @@ export const getListItemsOnPrem = async () => {
     });
 };
 
-export const addListItemOnPrem = async (listItem: IListItem) => {
-  const data = bundleDataForOnPrem(listItem, ITEM_TYPE);
+const getContextDigest = async () => {
   return spListApi
-    .post(SP_LIST, data, axiosCfg)
+    .post(`${SITE_URL}/_api/contextinfo`, axiosCfg)
     .then((resp) => {
-      console.log("Response");
-      console.log(resp);
-      return resp;
+      return resp.data.FormDigestValue;
     })
     .catch((err) => {
-      console.log(err);
-      return null;
+      console.error(err);
+      return "";
     });
+};
+
+export const addListItemOnPrem = async (listItem: IListItem) => {
+  return getContextDigest().then((digest) => {
+    axiosCfg.headers["X-RequestDigest"] = digest;
+    const data = bundleDataForOnPrem(listItem, ITEM_TYPE);
+    return spListApi
+      .post(SP_LIST, data, axiosCfg)
+      .then((resp) => {
+        console.log("Response");
+        console.log(resp);
+        return resp;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  });
 };

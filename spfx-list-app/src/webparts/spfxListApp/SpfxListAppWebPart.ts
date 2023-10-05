@@ -11,7 +11,7 @@ import {
   IListItemsProps,
   ListItems,
 } from "sp-list-app/lib/components/ListItems";
-import { ISpListItemPayload } from "sp-list-app/lib/model/IListItem";
+import { IListItemPayloadOnline } from "sp-list-app/lib/model/IListItem";
 import {
   MS_GRAPH,
   MS_GRAPH_SP_LIST_FIELDS,
@@ -30,7 +30,7 @@ export interface ISpfxListAppWebPartProps {
 }
 
 export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListAppWebPartProps> {
-  private _dataProvider: IPagedDataProvider<ISpListItemPayload>;
+  private _dataProvider: IPagedDataProvider<IListItemPayloadOnline>;
   private _graphClient: IHttpClient;
 
   protected async onInit(): Promise<void> {

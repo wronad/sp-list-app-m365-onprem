@@ -1,6 +1,7 @@
 {
   "name": "sp-list-app",
   "version": "0.0.1",
+  "homepage": "./",
   "private": true,
   "dependencies": {
     "@fluentui/react": "^8.104.5",
@@ -22,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && cp ./build/index.html ./build/index.aspx",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
