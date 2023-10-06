@@ -17,11 +17,11 @@ import {
 // SP_SITE = "sp-onprem:3110/dev-site"; // onPrem MS Azure
 // SP_SITE = "soceur.sof.socom.smil.mil/ppws/sandbox/ReactApps"; // onPrem
 
-// example howto get SP list id
+// example howto get SP list id for ListAppExample list
 // SP -> navigate to list -> settings -> list settigs -> RSS settings
 // redirects to:
-//   https://${SP_SITE}/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
-// LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
+//   https://${SP_SITE}/_layouts/15/listedit.aspx?List=%7BCB76740F-10ED-40B2-BE51-523C2F02E9DE%7D
+//   LIST_ID = "CB76740F-10ED-40B2-BE51-523C2F02E9DE";
 
 // SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
