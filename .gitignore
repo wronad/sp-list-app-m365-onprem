@@ -31,3 +31,6 @@ obj
 
 # Styles Generated Code
 *.scss.ts
+
+# SP Site config file
+app-config.ts

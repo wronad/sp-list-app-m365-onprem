@@ -4,6 +4,7 @@ import {
   IHttpClient,
   IHttpClientResponse,
 } from "mgwdev-m365-helpers/lib/dal/http";
+import { cfg } from "../app-config";
 import {
   IListItem,
   IListItemPayloadOnline,
@@ -11,34 +12,21 @@ import {
   bundleDataForOnPrem,
 } from "../model/IListItem";
 
-// '/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D';
+// example sp sites
+// SP_SITE = "8r1bcm.sharepoint.com"; // online dev tenant
+// SP_SITE = "sp-onprem:3110/dev-site"; // onPrem MS Azure
+// SP_SITE = "soceur.sof.socom.smil.mil/ppws/sandbox/ReactApps"; // onPrem
 
-//'https://8r1bcm.sharepoint.com/Lists/ccUsersTrainingCourses/items';
-//'8r1bcm.sharepoint.com';
-
-// https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView
-// const TENANT_ID = "bd04e98d-f006-4879-9451-b1096f9d1d03";
-
-// https://8r1bcm.sharepoint.com/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
-const LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
-
-// TODO add as build param
-// const SP_SITE = "8r1bcm.sharepoint.com";
-const SP_SITE = "sp-onprem:3110/dev-site"; // MS Azure
-// const SP_SITE = "soceur.sof.socom.smil.mil/ppws/sandbox/ReactApps";
+// example howto get SP list id
+// SP -> navigate to list -> settings -> list settigs -> RSS settings
+// redirects to:
+//   https://${SP_SITE}/_layouts/15/listedit.aspx?List=%7B53eff35b-3e5a-4ef3-b87f-3baad80b982a%7D
+// LIST_ID = "53eff35b-3e5a-4ef3-b87f-3baad80b982a";
 
 // SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
 export const MS_GRAPH = "https://graph.microsoft.com";
-
-export const MS_GRAPH_SP_LIST_FIELDS = `${MS_GRAPH}/v1.0/sites/${SP_SITE}/lists/${LIST_ID}/items?expand=fields&`;
-
-const MS_GRAPH_SP_LIST =
-  "https://graph.microsoft.com/v1.0/sites/" +
-  SP_SITE +
-  "/lists/" +
-  LIST_ID +
-  "/items";
+export const MS_GRAPH_SP_LIST = `${MS_GRAPH}/v1.0/sites/${cfg.SP_SITE}/lists/${cfg.LIST_ID}/items`;
 
 const SP_OPTS = {
   headers: {
@@ -64,8 +52,11 @@ export const addListItemOnline = async (
 // SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
 
 const LIST_NAME = "ListAppExample";
-const SITE_URL = `http://${SP_SITE}`; // MS Azure
-// const SITE_URL = `https://${SP_SITE}`;
+let urlPrefix = "https://";
+if (!cfg.SSL) {
+  urlPrefix = "http://"; // Azure dev env
+}
+const SITE_URL = `${urlPrefix}${cfg.SP_SITE}`;
 const SP_LIST = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
 
 // http://${SP_SITE}/_api/web/lists/getbytitle('ListAppExample')/ListItemEntityTypeFullName
@@ -82,7 +73,7 @@ const spListApi = axios.create({
   baseURL: SITE_URL,
 });
 
-export const getListItemsOnPrem = async () => {
+export const getListItemsOnPremAxios = async () => {
   return spListApi
     .get(SP_LIST, axiosCfg)
     .then((resp) => {

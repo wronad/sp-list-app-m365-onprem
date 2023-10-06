@@ -14,7 +14,7 @@ import {
 import { IListItemPayloadOnline } from "sp-list-app/lib/model/IListItem";
 import {
   MS_GRAPH,
-  MS_GRAPH_SP_LIST_FIELDS,
+  MS_GRAPH_SP_LIST,
 } from "sp-list-app/lib/services/SpListService";
 import {
   IHttpClient,
@@ -24,6 +24,8 @@ import {
   GraphODataPagedDataProvider,
   IPagedDataProvider,
 } from "sp-list-app/node_modules/mgwdev-m365-helpers/lib/dal";
+
+const MS_GRAPH_SP_LIST_FIELDS = `${MS_GRAPH_SP_LIST}?expand=fields&`;
 
 export interface ISpfxListAppWebPartProps {
   description: string;
