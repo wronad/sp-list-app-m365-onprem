@@ -15,6 +15,9 @@
   "supportedHosts": ["SharePointWebPart", "TeamsPersonalApp", "TeamsTab", "SharePointFullPage"],
   "supportsThemeVariants": true,
 
+  // Section layout, Full-width section for WebPart 
+  "supportsFullBleed": true,
+
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
     "group": { "default": "Advanced" },

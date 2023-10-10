@@ -1,32 +1,131 @@
 # Sharepoint React App for SP Online / MS 365 and SP OnPrem and Subscription Edition (SE)
 
-Example SP react app that reads list and adds items to list. The app's two versions:
+Example SP react app that reads list and adds items to list. The app's two variants:
 
-1. SP OnLine SPFx react webpart
+1.  SP OnLine SPFx react webpart
 
-<p>Webpart uses @microsoft/sharepoint-generator but seperates the react app which provides ability to choose react versions different than dependency in @microsoft/sharepoint-generator.  Requires [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/overview) in order to access SP Online site's information, specifically list data in this example app.  The MS Graph API be be be granted **Sites.ReadWrite.All** permissions, see [MS SP Admin](https://learn.microsoft.com/en-us/sharepoint/sharepoint-admin-role) for details.  Link to development tenant (access is limited but relative path will be same): Development SP Tenant's [SP Admin API](https://8r1bcm-admin.sharepoint.com/_layouts/15/online/AdminHome.aspx#/webApiPermissionManagement) access.</p>
+    Webpart uses @microsoft/sharepoint-generator but seperates the react app which provides ability to choose react variants different than dependency in @microsoft/sharepoint-generator. Requires [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/overview) in order to access SP Online site's information, specifically list data in this example app.
 
-TODO Image here for webApiPermissionManagement
+2.  SP OnPrem / Subscription Edition (SE)
 
-2. SP OnPrem / Subscription Edition (SE)
+    On premises react app is deployed on SP onPrem server and utilizes SP List API [@microsoft/sp-http](https://www.npmjs.com/package/@microsoft/sp-http), the base communication layer for the SP REST services. Authentication is not required since the SP site hosting the app handles access permissions, however the SP site digest must be included in the POST header for create, update, and delete list operations. The context API is:
 
-<p>On premises react app is deployed on SP onPrem server and utilizes SP List API [@microsoft/sp-http](https://www.npmjs.com/package/@microsoft/sp-http), the base communication layer for the SP REST services.  Authentication is not required since the SP site hosting the app handles access permissions.</p>
+    **${SITE_URL}/\_api/contextinfo**
 
-## Build / Package / Test
+## Prerequisites
 
-### spfx-webpart-list-app-ms365-onprem
+Required tools:
 
-#### sp-list-app
+- node v18
+- gulp-cli
+- yo
+- Microsoft SharePoint Generator v1.18.0
 
-To start:
-Go to sp-list-app directory
-Run
+Required environments:
+
+- SP Online Tenant, [Set up MS 365 Tenant](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/set-up-your-developer-tenant)
+- SP On Premise, [Azure Account](https://azure.microsoft.com/en-us/free/search/?ef_id=_k_Cj0KCQjw7JOpBhCfARIsAL3bobcCY3SsETB1kTZWqsEQd0D0SYu2-uLikiVmjAyAfAtXtbNI_Poot6QaAs3ZEALw_wcB_k_&OCID=AIDcmm5edswduu_SEM__k_Cj0KCQjw7JOpBhCfARIsAL3bobcCY3SsETB1kTZWqsEQd0D0SYu2-uLikiVmjAyAfAtXtbNI_Poot6QaAs3ZEALw_wcB_k_&gad=1&gclid=Cj0KCQjw7JOpBhCfARIsAL3bobcCY3SsETB1kTZWqsEQd0D0SYu2-uLikiVmjAyAfAtXtbNI_Poot6QaAs3ZEALw_wcB) with Miscorosft Windows Server running SharePoint 2019
+
+### node version 18
+
+Recommend installing nvm for windows hosts [Node Version Manager](https://github.com/coreybutler/nvm-windows/releases), utility to switch node versions.
+
+Node version 18 per @microsoft/generator-sharepoint
 
 ```
+{
+    name: "@microsoft/generator-sharepoint",
+    version: "1.18.0",
+    descriptions: "Yeoman generator for the SharePoint Framework",
+    engines: {
+        node: ">=16.13.0 <17.0.0 || >=18.17.1 <19.0.0"
+    }
+}
+```
+
+As **windows admin**:
+
+```
+nvm install 18
+```
+
+### gulp-cli
+
+As **windows user**:
+
+```
+npm install --global gulp-cli
+```
+
+### yo
+
+As **windows user**:
+
+```
+npm install --global yo
+```
+
+### SharePoint Generator
+
+SP Generator [@microsoft/generator-sharepoint](https://www.npmjs.com/package/@microsoft/generator-sharepoint?activeTab=versions)
+
+![version](https://img.shields.io/badge/version-1.18.0-green.svg)
+
+As **windows user**:
+
+```
+npm install ---global @microsoft/generator-sharepoint@1.18.0
+```
+
+## Create SPFx Webpart Application / Bootstrap SP Webpart
+
+Create SPFx webpart using SP Generator [SharePoint Framework](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview).
+As **windows user**:
+
+```
+mkdir sp-list-app-m365-onprem
+cd sp-list-app-m365-onprem
+mkdir spfx-list-app
+cd spfx-list-app
+yo @microsoft/sharepoint@1.18.0
+```
+
+Recommend using MS command prompt since bash shell inputs are not as clear.
+
+Bootstrap script inputs:
+![SPFx script inputs](/images/spfx.png)
+
+Bootstrap script finished:
+![SPFx script finished](/images/spfxDone.png)
+
+The **SP OnLine SPFx react webpart, variant 1** contains the code so the webpart can be deployed on a SP Online server. The SpfxListAppWebPart.ts wrapper adds the MS Graph API to the webpart context and intializes the standalone react app with the context containing MS Graph and the site's http client.
+
+The standalone react app does have a gulpfile dependency, [sp-build-web](https://www.npmjs.com/package/@microsoft/sp-build-web), for a build target that will run in web browser hosted from SP Online.
+
+## Standalone React App
+
+The standalone react app defines all of the application features. This single app can be built for **SP OnPrem / Subscription Edition (SE), variant 2** or SP Online, variant 1.
+
+The standalone react app does not have the same react version restrictions as the Microsoft SharePoint Generator utility. The only SharePoint dependency is **@microsoft/sp-http**, SharePoint REST services API for SP Lists. The **sp-build-web** gulp file dependency is only necessary for packaging the webpart (not needed for deploying the standalone react app on SP OnPrem or Subscription Edition/SE).
+
+## Build / Package
+
+Must deploy to SP Online tenant and must grant API access to MS Graph before running in dev mode from localhost. The build utilizes a **npm link** feature in order to build the standalone version first and then link the build to node's global node_modules.
+
+### Build and Package Standalone App
+
+Standalone app: **sp-list-app**
+
+Switch to standalone app dir and install dependencies:
+
+```
+cd sp-list-app
 npm install
 ```
 
-Run
+Note: Install not needed unless package.json is updated after initial install.
+
+Remove Msal\* lib dependencies and then build with gulp (**must run from bash shell**):
 
 ```
 ./removeMsalRefsThenGulpBuild.bash
@@ -34,56 +133,229 @@ Run
 
 **WARNING: Msal* files cause spfx-list-app bundling (gulp bundle) errors, but the Msal* services are not used**
 
-Run
+#### Build and Package SPFx Webpart App
+
+NO
+
+Add dev cert:
 
 ```
-npm run build
+gulp trust-dev-cert
 ```
 
-Run
+NO
+
+SPFx webpart app: **spfx-list-app**
+
+Must delete dir and contents of **spfx-list-app/src/webparts/loc** and replace referenced variables in **SpfxAppWebPart.ts** with string constants.
+
+Update **package-solution.json**, add MS Graph API permissions request (**webApiPermissionRequest**) for all Sites on tenant:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-list-app-client-side-solution",
+    "id": "a0c9801e-fa75-4618-8bc9-992ade22b3b4",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-list-app description"
+      },
+      "longDescription": {
+        "default": "spfx-list-app description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "webApiPermissionRequests": [
+      {
+        "resource": "Microsoft Graph",
+        "scope": "Sites.ReadWrite.All"
+      }
+    ],
+    "features": [
+      {
+        "title": "spfx-list-app Feature",
+        "description": "The feature that activates elements of the spfx-list-app solution.",
+        "id": "682fd9a9-94c5-41b9-b8ad-74a9025c9c91",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-list-app.sppkg"
+  }
+}
+```
+
+Also must one-up **"version"** in order to deploy updated webpart on SP Online site, e.g. from **"1.0.0.0"** to **"1.0.0.1"** in:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-list-app-client-side-solution",
+    "id": "a0c9801e-fa75-4618-8bc9-992ade22b3b4",
+    "version": "1.0.0.1",
+    ...
+```
+
+Must add support for full-width column for webpart SP Online deploys, add **"supportsFullBleed": true,** to **SpfxListAppWebPart.manifest.json**. Updated file:
+
+```json
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "d0ae4c5b-968c-4f49-a2f7-453d3f33cd11",
+  "alias": "SpfxListAppWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab",
+    "SharePointFullPage"
+  ],
+  "supportsThemeVariants": true,
+
+  // Section layout, Full-width section for WebPart
+  "supportsFullBleed": true,
+
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
+      "group": { "default": "Advanced" },
+      "title": { "default": "spfx-list-app" },
+      "description": { "default": "spfx-list-app description" },
+      "officeFabricIconFontName": "Page",
+      "properties": {
+        "description": "spfx-list-app"
+      }
+    }
+  ]
+}
+```
+
+Switch to spfx app dir and install dependencies:
 
 ```
-npm link
-```
-
-Run
-
-```
-npm start
-```
-
-#### spfx-list-app
-
-to start developing against local server
-
-Go to spfx-list-app-m365 directory
-Run
-
-```
+cd spfx-list-app
 npm install
 ```
 
-Run
+Note: Install not needed unless package.json is updated after initial install.
+
+Add standalone app lib to local node_modules
 
 ```
 npm link sp-list-app
 ```
 
-Run
-
-```
-gulp serve --nobrowser
-```
-
-to start developing against SP workbench
-
-Deploy
+Build for deploy to SP Online tenant:
 
 ```
 gulp build
-gulp bundle
-gulp package-solution
+gulp bundle --ship
+gulp package-solution --ship
 ```
 
-Copy to app catalog
-TODO more details...
+Copy SPFx webpart to SP Tenant's AppCatalog, URL:
+
+**#####-admin.sharepoint.com/\_layouts/15/online/AdminHome.aspx#/siteManagement/view/ALL%20SITES**
+
+Click on:
+
+- URL: .../sites/appcatalog
+- Distribute apps for SharePoint
+- Drag and drop **spfx-list-app/sharepoint/solution/spfx-list-app/sppkg** onto webpage
+- Replace It
+- Deploy - do **NOT** select **Make this solution available to all sites in the organization**
+  App version will match package-solution.json "version".
+
+As **SP Admin**, URL:
+**-admin.sharepoint.com/\_layouts/15/online/AdminHome.aspx#/home**
+
+Note: Requires SP Admin assistance for our enterprise SP Online.
+
+Click on:
+
+- Advanced
+- API Access
+
+Grant access to **Microsoft Graph** in **Pending requests**.
+
+API access updated:
+![SP Online MS Graph API Access](/images/spOnlineAdminApiAccess.png)
+
+## Deploy SPFx App
+
+### Prerequisite
+
+Must create **ListAppExample** SP list as defined in **IListItem** interface.
+
+Initial Deploy Steps:
+
+- Add new app, **add an app** from communication site's **Site Contents**
+- Add **spfx-list-app-client-side-solution** under **Apps you can add**
+- Add new page, **+ New -> Site Page** communication site's **Pages**
+- Add **Full-width section**
+- Add **spfx-list-app**
+- Publish
+
+Update Deploy Steps:
+
+- Copy SPFx webpart to SP Tenant's AppCatalog
+- Click webpart's **... -> ABOUT** under communication site's **Site contents**
+- Click **GET IT**
+
+Note: SP Page will update webpart automatically.
+
+## Test SPFx Webpart Locally
+
+Develop and test against SP workbench on tenant.
+
+### Prerequisite
+
+Must deploy SPFx webpart and grant MS Graph API access to SP tenant (not required after intial API access granted).
+
+### Build then Link sp-list-app
+
+Build and copy standalone lib.
+
+```
+cd sp-list-app
+./removeMsalRefsThenGulpBuild.bash && npm run build && npm link
+
+```
+
+### Link then build spfx-list-app
+
+Run in development mode on tenant's workbench.
+
+```
+cd spfx-list-app
+npm link sp-list-app && gulp serve --nobrowser
+```
+
+Open browser and navigate to URL:
+
+**#####.sharepoint.com/sites/dev/\_layouts/15/workbench.aspx**

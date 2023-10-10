@@ -4,7 +4,6 @@ import {
   type IPropertyPaneConfiguration,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
-import * as strings from "SpfxListAppWebPartStrings";
 import * as React from "react";
 import * as ReactDom from "react-dom";
 import {
@@ -73,14 +72,14 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription,
+            description: "SPFx react example list app ",
           },
           groups: [
             {
-              groupName: strings.BasicGroupName,
+              groupName: "SPFx react app group",
               groupFields: [
                 PropertyPaneTextField("description", {
-                  label: strings.DescriptionFieldLabel,
+                  label: "SPFx react app label",
                 }),
               ],
             },

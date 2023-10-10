@@ -47,7 +47,6 @@
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-4.5": "^0.3.0",
-    "@microsoft/sp-build-web": "^1.18.0",
-    "@pnp/sp": "^3.18.0"
+    "@microsoft/sp-build-web": "^1.18.0"
   }
 }

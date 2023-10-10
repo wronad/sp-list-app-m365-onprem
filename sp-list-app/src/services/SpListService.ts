@@ -73,7 +73,7 @@ const spListApi = axios.create({
   baseURL: SITE_URL,
 });
 
-export const getListItemsOnPremAxios = async () => {
+export const getListItemsOnPrem = async () => {
   return spListApi
     .get(SP_LIST, axiosCfg)
     .then((resp) => {

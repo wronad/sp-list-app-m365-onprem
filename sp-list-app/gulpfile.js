@@ -8,12 +8,12 @@ gulp.task('set-sp-site', async function() {
       site = process.argv[iSite + 1];
   }
   cfgObj = cfgObj + site + '"';
-  var sslFlag = "true";
+  var sslFlag = true;
   var iSsl = process.argv.indexOf("--ssl");
   if(iSsl >-1) {
       sslFlag = process.argv[iSsl + 1];
   }
-  cfgObj = cfgObj + ', SSL: "' + sslFlag + '"';
+  cfgObj = cfgObj + ", SSL: " + sslFlag;
   var listId = "";
   var iList = process.argv.indexOf("--listid");
   if(iList >-1) {

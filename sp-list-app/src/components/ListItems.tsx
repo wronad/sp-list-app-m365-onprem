@@ -11,7 +11,7 @@ import {
 import {
   addListItemOnPrem,
   addListItemOnline,
-  getListItemsOnPremAxios,
+  getListItemsOnPrem,
   getListItemsOnline,
 } from "../services/SpListService";
 import { ListItemsGrid } from "./ListItemsGrid";
@@ -51,7 +51,7 @@ export const ListItems = (props: IListItemsProps) => {
   };
 
   const fetchDataOnPrem = () => {
-    getListItemsOnPremAxios().then((spListItems) => {
+    getListItemsOnPrem().then((spListItems) => {
       itemsFetched(spListItems, false);
     });
   };
