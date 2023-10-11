@@ -8,6 +8,7 @@ gulp.task('set-sp-site', async function() {
       site = process.argv[iSite + 1];
   }
   cfgObj = cfgObj + site + '"';
+  // required for MS Azure SP 2019 VM (does not connect via SSL/TLS to lists)
   var sslFlag = true;
   var iSsl = process.argv.indexOf("--ssl");
   if(iSsl >-1) {

@@ -13,9 +13,9 @@ import {
 } from "../model/IListItem";
 
 // example sp sites
-// SP_SITE = "8r1bcm.sharepoint.com"; // online dev tenant
+// SP_SITE = "######.sharepoint.com"; // online dev tenant
 // SP_SITE = "sp-onprem:3110/dev-site"; // onPrem MS Azure
-// SP_SITE = "soceur.sof.socom.smil.mil/ppws/sandbox/ReactApps"; // onPrem
+// SP_SITE = "soceur.*/ppws/sandbox/ReactApps"; // onPrem
 
 // example howto get SP list id for ListAppExample list
 // SP -> navigate to list -> settings -> list settigs -> RSS settings

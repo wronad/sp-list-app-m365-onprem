@@ -125,6 +125,18 @@ npm install
 
 Note: Must **_npm install_** if its **package.json** is updated after initial build.
 
+Set SharePoint environment for build script:
+
+```
+cd sp-list-app
+gulp set-sp-site --site <SP Site> --listid <List ID>
+```
+
+Notes:
+
+- SP Site => online tenant example: \*.sharepoint.com, onPrem example: soceur.\*/ppws/sanbox/ReactApps
+- List Id => SP site -> navigate to list -> settings -> list settigs -> RSS settings
+
 Remove Msal\* lib dependencies and then build with gulp (**must run from bash shell**):
 
 ```
@@ -145,7 +157,7 @@ Link standalone app libs:
 npm link
 ```
 
-The **npm link** feature copies the standalone app package to node's global node_modules.
+The **npm link** feature copies the standalone app package to node's global node*modules -- \*\*\_only required for SPFx Webpart App*\*\*.
 
 # SPFx Webpart App (SP Online)
 
@@ -352,9 +364,14 @@ Build and copy standalone lib.
 
 ```
 cd sp-list-app
+gulp set-sp-site --site <SP Site> --listid <List ID>
 ./removeMsalRefsThenGulpBuild.bash && npm run build && npm link
-
 ```
+
+Notes:
+
+- SP Site => online tenant example: \*.sharepoint.com
+- List Id => SP site -> navigate to list -> settings -> list settigs -> RSS settings
 
 ## Link then build spfx-list-app
 
