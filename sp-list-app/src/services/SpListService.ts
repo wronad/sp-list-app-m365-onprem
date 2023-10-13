@@ -25,7 +25,8 @@ import {
 
 // SP MS 365 / Online /////////////////////////////////////////////////////////////////
 
-export const MS_GRAPH = "https://graph.microsoft.com";
+// export const MS_GRAPH = `https://graph.microsoft.${cfg.GRAPH_URL}`;
+export const MS_GRAPH = `https://${cfg.MS_GRAPH}`;
 export const MS_GRAPH_SP_LIST = `${MS_GRAPH}/v1.0/sites/${cfg.SP_SITE}/lists/${cfg.LIST_ID}/items`;
 
 const SP_OPTS = {

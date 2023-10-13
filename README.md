@@ -129,13 +129,14 @@ Set SharePoint environment for build script:
 
 ```
 cd sp-list-app
-gulp set-sp-site --site <SP Site> --listid <List ID>
+gulp set-sp-site --site <SP Site> --listid <List ID> --graph <MS Graph URL>
 ```
 
 Notes:
 
 - SP Site => online tenant example: \*.sharepoint.com, onPrem example: soceur.\*/ppws/sanbox/ReactApps
 - List Id => SP site -> navigate to list -> settings -> list settigs -> RSS settings
+- MS Graph URL => _*graph.microsoft.com*_ for commercial
 
 Remove Msal\* lib dependencies and then build with gulp (**must run from bash shell**):
 
@@ -371,7 +372,7 @@ gulp set-sp-site --site <SP Site> --listid <List ID>
 Notes:
 
 - SP Site => online tenant example: \*.sharepoint.com
-- List Id => SP site -> navigate to list -> settings -> list settigs -> RSS settings
+- List Id => SP site -> navigate to list -> settings -> list settings -> RSS settings
 
 ## Link then build spfx-list-app
 
