@@ -365,14 +365,11 @@ Build and copy standalone lib.
 
 ```
 cd sp-list-app
-gulp set-sp-site --site <SP Site> --listid <List ID>
+gulp set-sp-site ...
 ./removeMsalRefsThenGulpBuild.bash && npm run build && npm link
 ```
 
-Notes:
-
-- SP Site => online tenant example: \*.sharepoint.com
-- List Id => SP site -> navigate to list -> settings -> list settings -> RSS settings
+Notes: _gulp set-sp-site_ args same as above.
 
 ## Link then build spfx-list-app
 
