@@ -10,41 +10,17 @@ import {
   IListItemsProps,
   ListItems,
 } from "sp-list-app/lib/components/ListItems";
-import { IListItemPayloadOnline } from "sp-list-app/lib/model/IListItem";
-import {
-  MS_GRAPH,
-  MS_GRAPH_SP_LIST,
-} from "sp-list-app/lib/services/SpListService";
-import {
-  IHttpClient,
-  SPFxGraphHttpClient,
-} from "sp-list-app/node_modules/mgwdev-m365-helpers";
-import {
-  GraphODataPagedDataProvider,
-  IPagedDataProvider,
-} from "sp-list-app/node_modules/mgwdev-m365-helpers/lib/dal";
-
-const MS_GRAPH_SP_LIST_FIELDS = `${MS_GRAPH_SP_LIST}?expand=fields&`;
+import { SpfxSpHttpClient } from "sp-list-app/lib/spOnlineRestApi";
 
 export interface ISpfxListAppWebPartProps {
   description: string;
 }
 
 export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListAppWebPartProps> {
-  private _dataProvider: IPagedDataProvider<IListItemPayloadOnline>;
-  private _graphClient: IHttpClient;
+  private _restApiClient: SpfxSpHttpClient;
 
   protected async onInit(): Promise<void> {
-    const aadHttpClient = await this.context.aadHttpClientFactory.getClient(
-      MS_GRAPH
-    );
-    const spfxGraphHttpClient = new SPFxGraphHttpClient(aadHttpClient);
-    this._dataProvider = new GraphODataPagedDataProvider(
-      spfxGraphHttpClient,
-      MS_GRAPH_SP_LIST_FIELDS,
-      true
-    );
-    this._graphClient = spfxGraphHttpClient;
+    this._restApiClient = new SpfxSpHttpClient(this.context.spHttpClient);
   }
 
   protected onDispose(): void {
@@ -54,10 +30,7 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
   public render(): void {
     const element: React.ReactElement<IListItemsProps> = React.createElement(
       ListItems,
-      {
-        spOnlineDataProvider: this._dataProvider,
-        spOnlineClient: this._graphClient,
-      }
+      { spOnlineRestApi: this._restApiClient }
     );
 
     ReactDom.render(element, this.domElement);

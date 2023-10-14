@@ -1,16 +1,14 @@
 import axios from "axios";
-import { IPagedDataProvider } from "mgwdev-m365-helpers/lib/dal/dataProviders";
-import {
-  IHttpClient,
-  IHttpClientResponse,
-} from "mgwdev-m365-helpers/lib/dal/http";
 import { cfg } from "../app-config";
 import {
   IListItem,
-  IListItemPayloadOnline,
-  bundleBodyForOnline,
   bundleDataForOnPrem,
+  bundleDataForOnlineApi,
 } from "../model/IListItem";
+import {
+  IHttpClientResponse as IHttpClientResponseApi,
+  SpfxSpHttpClient,
+} from "../spOnlineRestApi";
 
 // example sp sites
 // SP_SITE = "######.sharepoint.com"; // online dev tenant
@@ -23,35 +21,6 @@ import {
 //   https://${SP_SITE}/_layouts/15/listedit.aspx?List=%7BCB76740F-10ED-40B2-BE51-523C2F02E9DE%7D
 //   LIST_ID = "CB76740F-10ED-40B2-BE51-523C2F02E9DE";
 
-// SP MS 365 / Online /////////////////////////////////////////////////////////////////
-
-// export const MS_GRAPH = `https://graph.microsoft.${cfg.GRAPH_URL}`;
-export const MS_GRAPH = `https://${cfg.MS_GRAPH}`;
-export const MS_GRAPH_SP_LIST = `${MS_GRAPH}/v1.0/sites/${cfg.SP_SITE}/lists/${cfg.LIST_ID}/items`;
-
-const SP_OPTS = {
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: "",
-};
-
-export const getListItemsOnline = async (
-  dataProvider: IPagedDataProvider<IListItemPayloadOnline>
-): Promise<IListItemPayloadOnline[]> => {
-  return dataProvider.getData();
-};
-
-export const addListItemOnline = async (
-  spOnlineClient: IHttpClient,
-  listItem: IListItem
-): Promise<IHttpClientResponse> => {
-  SP_OPTS.body = bundleBodyForOnline(listItem);
-  return spOnlineClient.post(MS_GRAPH_SP_LIST, SP_OPTS);
-};
-
-// SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
-
 const LIST_NAME = "ListAppExample";
 let urlPrefix = "https://";
 if (!cfg.SSL) {
@@ -59,6 +28,36 @@ if (!cfg.SSL) {
 }
 const SITE_URL = `${urlPrefix}${cfg.SP_SITE}`;
 const SP_LIST = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
+
+// SP MS 365 / Online /////////////////////////////////////////////////////////////////
+
+const SP_OPTS = {
+  headers: {
+    "X-RequestDigest": "",
+  },
+  body: "",
+};
+
+export const getListItemsApiOnline = async (
+  spOnlineApi: SpfxSpHttpClient
+): Promise<IHttpClientResponseApi> => {
+  return spOnlineApi.get(SP_LIST).then((response) => {
+    return response.json();
+  });
+};
+
+export const addListItemApiOnline = async (
+  spOnlineApi: SpfxSpHttpClient,
+  listItem: IListItem
+): Promise<IHttpClientResponseApi> => {
+  return getContextDigest().then((digest) => {
+    SP_OPTS.headers["X-RequestDigest"] = digest;
+    SP_OPTS.body = bundleDataForOnlineApi(listItem);
+    return spOnlineApi.post(SP_LIST, SP_OPTS);
+  });
+};
+
+// SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
 
 // http://${SP_SITE}/_api/web/lists/getbytitle('ListAppExample')/ListItemEntityTypeFullName
 const ITEM_TYPE = `SP.Data.${LIST_NAME}ListItem`;

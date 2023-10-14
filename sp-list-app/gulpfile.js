@@ -24,14 +24,6 @@ gulp.task('set-sp-site', async function() {
   }
   cfgObj = cfgObj + ", SSL: " + sslFlag;
 
-  // "com" for commercial SP Online
-  var graphUrl = "dod-graph.microsoft.us"; // default
-  var iGraph = process.argv.indexOf("--graph");
-  if(iGraph >-1) {
-    graphUrl = process.argv[iGraph + 1];
-  }
-  cfgObj = cfgObj + ', MS_GRAPH: "' + graphUrl + '"';
-
   cfgObj = cfgObj + " }";
 
   return require('fs').writeFileSync('./src/app-config.ts', cfgObj);

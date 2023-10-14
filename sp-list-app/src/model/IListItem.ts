@@ -11,14 +11,15 @@ export interface IListItem {
   targetAudience: string;
 }
 
-export interface IListItemPayloadOnline {
-  id: string;
-  webUrl: string;
-  siteId: string;
-  fields: any;
+interface IListItemPayload {
+  id?: number;
+  Title: string; // COURSE_NAME
+  COURSE_CODE: string;
+  COURSE_FREQUENCY: string;
+  TARGET_AUDIENCE: string;
 }
 
-export interface IListItemPayloadOnPrem {
+interface IListItemResponseOnPrem {
   data: {
     d: {
       results: any[];
@@ -26,32 +27,27 @@ export interface IListItemPayloadOnPrem {
   };
 }
 
-export const bundleBodyForOnline = (item: IListItem): string => {
-  const spListItemFields = {
-    fields: {
-      Title: item[COURSE_NAME], // COURSE_NAME - SP list column
-      COURSE_CODE: item[COURSE_CODE],
-      COURSE_FREQUENCY: item[COURSE_FREQUENCY],
-      TARGET_AUDIENCE: item[TARGET_AUDIENCE],
-    },
+const bundleItem = (item: IListItem): IListItemPayload => {
+  return {
+    Title: item[COURSE_NAME], // COURSE_NAME - SP list column
+    COURSE_CODE: item[COURSE_CODE],
+    COURSE_FREQUENCY: item[COURSE_FREQUENCY],
+    TARGET_AUDIENCE: item[TARGET_AUDIENCE],
   };
-  return JSON.stringify(spListItemFields);
+};
+
+export const bundleDataForOnlineApi = (item: IListItem): string => {
+  const data = bundleItem(item);
+  return JSON.stringify(data);
 };
 
 export const bundleDataForOnPrem = (
   item: IListItem,
   itemType: string
 ): string => {
-  const data = {
-    __metadata: {
-      type: itemType,
-    },
-    Title: item[COURSE_NAME], // COURSE_NAME - SP list column
-    COURSE_CODE: item[COURSE_CODE],
-    COURSE_FREQUENCY: item[COURSE_FREQUENCY],
-    TARGET_AUDIENCE: item[TARGET_AUDIENCE],
-  };
-  return JSON.stringify(data);
+  const data = bundleItem(item);
+  const onPremData = { ...data, __metadata: { type: itemType } };
+  return JSON.stringify(onPremData);
 };
 
 export const extractSpListItems = (
@@ -62,8 +58,8 @@ export const extractSpListItems = (
   let listItems: any[] = [];
 
   if (spOnline) {
-    if (spResponse?.length) {
-      listItems = spResponse;
+    if (spResponse?.value) {
+      listItems = spResponse.value;
     }
   } else if (spResponse?.data?.d?.results?.length) {
     listItems = spResponse.data.d.results;
@@ -73,11 +69,10 @@ export const extractSpListItems = (
     let itemData = undefined;
     let id = "Id";
     if (spOnline) {
-      id = "id";
-      const onlineItem: IListItemPayloadOnline = item;
-      itemData = onlineItem.fields;
+      const onlineItem: IListItemPayload = item;
+      itemData = onlineItem;
     } else {
-      const onPremItem: IListItemPayloadOnPrem = item;
+      const onPremItem: IListItemResponseOnPrem = item;
       itemData = onPremItem;
     }
     if (itemData) {

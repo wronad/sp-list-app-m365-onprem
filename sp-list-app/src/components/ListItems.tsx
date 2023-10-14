@@ -1,24 +1,21 @@
 import { Spinner } from "@fluentui/react";
-import { IPagedDataProvider } from "mgwdev-m365-helpers/lib/dal/dataProviders";
-import { IHttpClient } from "mgwdev-m365-helpers/lib/dal/http";
 import * as React from "react";
 import {
   IListItem,
-  IListItemPayloadOnline,
   extractSpListItems,
   mockNewListItem,
 } from "../model/IListItem";
 import {
+  addListItemApiOnline,
   addListItemOnPrem,
-  addListItemOnline,
+  getListItemsApiOnline,
   getListItemsOnPrem,
-  getListItemsOnline,
 } from "../services/SpListService";
+import { SpfxSpHttpClient } from "../spOnlineRestApi";
 import { ListItemsGrid } from "./ListItemsGrid";
 
 export interface IListItemsProps {
-  spOnlineDataProvider?: IPagedDataProvider<IListItemPayloadOnline>;
-  spOnlineClient?: IHttpClient;
+  spOnlineRestApi?: SpfxSpHttpClient;
 }
 
 export const ListItems = (props: IListItemsProps) => {
@@ -37,7 +34,7 @@ export const ListItems = (props: IListItemsProps) => {
   }, [items]);
 
   const fetchData = () => {
-    if (props.spOnlineClient) {
+    if (props.spOnlineRestApi) {
       fetchDataOnline();
     } else {
       fetchDataOnPrem();
@@ -45,7 +42,7 @@ export const ListItems = (props: IListItemsProps) => {
   };
 
   const fetchDataOnline = () => {
-    getListItemsOnline(props.spOnlineDataProvider).then((spListItems) => {
+    getListItemsApiOnline(props.spOnlineRestApi).then((spListItems) => {
       itemsFetched(spListItems, true);
     });
   };
@@ -66,7 +63,7 @@ export const ListItems = (props: IListItemsProps) => {
   const addItem = () => {
     const plus1 = count + 1;
     const mockItem = mockNewListItem(plus1);
-    if (props.spOnlineClient) {
+    if (props.spOnlineRestApi) {
       addItemOnline(mockItem, plus1);
     } else {
       addItemOnPrem(mockItem, plus1);
@@ -74,7 +71,7 @@ export const ListItems = (props: IListItemsProps) => {
   };
 
   const addItemOnline = (item: IListItem, num: number) => {
-    addListItemOnline(props.spOnlineClient, item)
+    addListItemApiOnline(props.spOnlineRestApi, item)
       .then((resp) => handleItemAdded(num))
       .catch((err) => console.log(JSON.stringify(err)));
   };
