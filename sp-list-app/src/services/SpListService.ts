@@ -4,11 +4,13 @@ import {
   IListItem,
   bundleDataForOnPrem,
   bundleDataForOnlineApi,
+  bundleItem,
 } from "../model/IListItem";
-import {
-  IHttpClientResponse as IHttpClientResponseApi,
-  SpfxSpHttpClient,
-} from "../spOnlineRestApi";
+import { SpfxSpHttpClient } from "../dal";
+import { SPFI } from "@pnp/sp";
+import "@pnp/sp/webs";
+import { addListItem, getListItems } from "../dal/spPnpDal";
+import { IQueryParams } from "../dal/IQueryParams";
 
 // example sp sites
 // SP_SITE = "######.sharepoint.com"; // online dev tenant
@@ -26,10 +28,21 @@ let urlPrefix = "https://";
 if (!cfg.SSL) {
   urlPrefix = "http://"; // Azure dev env
 }
-const SITE_URL = `${urlPrefix}${cfg.SP_SITE}`;
-const SP_LIST = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
+export const SITE_URL = `${urlPrefix}${cfg.SP_SITE}`;
+const SP_LIST_ENDPOINT = `${SITE_URL}/_api/web/lists/GetByTitle('${LIST_NAME}')/items`;
 
-// SP MS 365 / Online /////////////////////////////////////////////////////////////////
+const getContextDigest = async () => {
+  return AXIOS_SP_LIST_API.post(`${SITE_URL}/_api/contextinfo`, AXIOS_CFG)
+    .then((resp) => {
+      return resp.data.FormDigestValue;
+    })
+    .catch((err) => {
+      console.error("SPListService.getContextDigest", err);
+      return "";
+    });
+};
+
+// Only for SPFx, can NOT use for standalone react app ////////////////////////////////////////////
 
 const SP_OPTS = {
   headers: {
@@ -37,82 +50,128 @@ const SP_OPTS = {
   },
   body: "",
 };
+const VAL = "value";
 
-export const getListItemsApiOnline = async (
-  spOnlineApi: SpfxSpHttpClient
-): Promise<IHttpClientResponseApi> => {
-  return spOnlineApi.get(SP_LIST).then((response) => {
-    return response.json();
-  });
+// SPFx client - REST API
+export const getListItemsSpfxClient = async (
+  spfxRestClient: SpfxSpHttpClient
+): Promise<any> => {
+  return spfxRestClient
+    .get(SP_LIST_ENDPOINT)
+    .then((response) => response.json())
+    .then((resp) => {
+      if (VAL in resp) {
+        return resp[VAL];
+      }
+      return [];
+    })
+    .catch((err) => {
+      console.log("SpListService.getListItemsSpfxClient", err);
+      return [];
+    });
 };
 
-export const addListItemApiOnline = async (
-  spOnlineApi: SpfxSpHttpClient,
+// SPFx client - REST API
+export const addListItemSpfxClient = async (
+  spfxRestClient: SpfxSpHttpClient,
   listItem: IListItem
-): Promise<IHttpClientResponseApi> => {
+): Promise<number> => {
   return getContextDigest().then((digest) => {
     SP_OPTS.headers["X-RequestDigest"] = digest;
     SP_OPTS.body = bundleDataForOnlineApi(listItem);
-    return spOnlineApi.post(SP_LIST, SP_OPTS);
+    return spfxRestClient
+      .post(SP_LIST_ENDPOINT, SP_OPTS)
+      .then((response) => {
+        return 1;
+      })
+      .catch((err) => {
+        console.log("SpListService.addListItemSpfxClient", err);
+        return 0;
+      });
   });
 };
 
-// SP On Prem / Subscription Edition (SE) ////////////////////////////////////////////
+// SP PnP client
+export const getListItemsSpPnp = async (spPnpClient: SPFI): Promise<any> => {
+  const params: IQueryParams = {
+    listName: LIST_NAME,
+    select: [],
+    expand: "",
+    filter: "",
+  };
+  return getListItems(spPnpClient, params)
+    .then((response) => {
+      if (response?.results) {
+        return response.results;
+      }
+      return [];
+    })
+    .catch((err) => {
+      console.log("SpListService.getListItemsSpPnp", err);
+      return [];
+    });
+};
+
+// SP PnP client
+export const addListItemSpPnp = async (
+  spPnpClient: SPFI,
+  listItem: IListItem
+): Promise<number> => {
+  const item = bundleItem(listItem);
+  const params: IQueryParams = {
+    listName: LIST_NAME,
+    itemData: item,
+  };
+  return addListItem(spPnpClient, params)
+    .then((response) => (response?.data?.Id ? response.data.Id : 0))
+    .catch((err) => {
+      console.log("SpListService.addListItemSpPnp", err);
+      return 0;
+    });
+};
+
+// Ok for SP Online, OnPrem / Subscription Edition (SE), & standalone apps ///////////////
 
 // http://${SP_SITE}/_api/web/lists/getbytitle('ListAppExample')/ListItemEntityTypeFullName
 const ITEM_TYPE = `SP.Data.${LIST_NAME}ListItem`;
 
-const axiosCfg = {
+const AXIOS_CFG = {
   headers: {
     accept: "application/json;odata=verbose",
     "content-type": "application/json;odata=verbose",
   },
 };
 
-const spListApi = axios.create({
+const AXIOS_SP_LIST_API = axios.create({
   baseURL: SITE_URL,
 });
 
-export const getListItemsOnPrem = async () => {
-  return spListApi
-    .get(SP_LIST, axiosCfg)
+// axios SP List API
+export const getListItemsRestApi = async () => {
+  return AXIOS_SP_LIST_API.get(SP_LIST_ENDPOINT, AXIOS_CFG)
     .then((resp) => {
-      console.log("Response");
-      console.log(resp);
-      return resp;
+      if (resp?.data?.d?.results?.length) {
+        return resp.data.d.results;
+      }
     })
     .catch((err) => {
-      console.log(err);
-      return null;
+      console.error("SPListService.getListItemsOnPrem", err);
+      return [];
     });
 };
 
-const getContextDigest = async () => {
-  return spListApi
-    .post(`${SITE_URL}/_api/contextinfo`, axiosCfg)
-    .then((resp) => {
-      return resp.data.FormDigestValue;
-    })
-    .catch((err) => {
-      console.error(err);
-      return "";
-    });
-};
-
-export const addListItemOnPrem = async (listItem: IListItem) => {
+// axios SP List API
+export const addListItemRestApi = async (
+  listItem: IListItem
+): Promise<number> => {
   return getContextDigest().then((digest) => {
-    axiosCfg.headers["X-RequestDigest"] = digest;
+    AXIOS_CFG.headers["X-RequestDigest"] = digest;
     const data = bundleDataForOnPrem(listItem, ITEM_TYPE);
-    return spListApi
-      .post(SP_LIST, data, axiosCfg)
-      .then((resp) => {
-        console.log("Response");
-        console.log(resp);
-        return resp;
-      })
+    return AXIOS_SP_LIST_API.post(SP_LIST_ENDPOINT, data, AXIOS_CFG)
+      .then((response) => (response?.data?.d?.Id ? response.data.d.Id : 0))
       .catch((err) => {
-        console.log(err);
-        return null;
+        console.error("SPListService.getContextDigest", err);
+        return 0;
       });
   });
 };

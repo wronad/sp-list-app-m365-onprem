@@ -4,13 +4,16 @@ import {
   type IPropertyPaneConfiguration,
 } from "@microsoft/sp-property-pane";
 import { BaseClientSideWebPart } from "@microsoft/sp-webpart-base";
+import { SPFI } from "@pnp/sp";
 import * as React from "react";
 import * as ReactDom from "react-dom";
 import {
   IListItemsProps,
   ListItems,
 } from "sp-list-app/lib/components/ListItems";
-import { SpfxSpHttpClient } from "sp-list-app/lib/spOnlineRestApi";
+import { SpfxSpHttpClient } from "sp-list-app/lib/dal";
+import { SITE_URL } from "sp-list-app/lib/services/SpListService";
+import { getSpFrameworkIF } from "../../dal/spPnpDal";
 
 export interface ISpfxListAppWebPartProps {
   description: string;
@@ -18,9 +21,11 @@ export interface ISpfxListAppWebPartProps {
 
 export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListAppWebPartProps> {
   private _restApiClient: SpfxSpHttpClient;
+  private _pnpApiClient: SPFI;
 
   protected async onInit(): Promise<void> {
     this._restApiClient = new SpfxSpHttpClient(this.context.spHttpClient);
+    this._pnpApiClient = getSpFrameworkIF(this.context, SITE_URL);
   }
 
   protected onDispose(): void {
@@ -30,7 +35,7 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
   public render(): void {
     const element: React.ReactElement<IListItemsProps> = React.createElement(
       ListItems,
-      { spOnlineRestApi: this._restApiClient }
+      { spfxRestClient: this._restApiClient, spPnpClient: this._pnpApiClient }
     );
 
     ReactDom.render(element, this.domElement);
@@ -62,3 +67,4 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
     };
   }
 }
+0;

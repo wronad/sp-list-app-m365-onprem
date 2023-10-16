@@ -129,13 +129,16 @@ Set SharePoint environment for build script:
 
 ```
 cd sp-list-app
-gulp set-sp-site --site <SP Site> --listid <List ID>
+gulp set-sp-site --site <SP Site> --listid <List ID> --api <API Type>
 ```
 
 Notes:
 
 - SP Site => online tenant example: \*.sharepoint.com, onPrem example: soceur.\*/ppws/sanbox/ReactApps
 - List Id => SP site -> navigate to list -> settings -> list settigs -> RSS settings
+- API Type => Three types: **1.** **_pnp_**: SP PnP API (default), **2.** **_spfx_**: SPFx REST API, **3.** **_rest_**^: SP REST API using axios
+
+Note^: Only option available for standalone app.
 
 Build with gulp:
 

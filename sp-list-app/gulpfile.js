@@ -16,6 +16,13 @@ gulp.task('set-sp-site', async function() {
   }
   cfgObj = cfgObj + ', LIST_ID: "' + listId + '"';
 
+  var apiType = "";
+  var iApi = process.argv.indexOf("--api");
+  if(iApi >-1) {
+    apiType = process.argv[iApi + 1];
+  }
+  cfgObj = cfgObj + ', API_TYPE: "' + apiType + '"';
+
   // required for MS Azure SP 2019 OnPrem VM (does not connect via SSL/TLS to lists)
   var sslFlag = true; // default
   var iSsl = process.argv.indexOf("--ssl");

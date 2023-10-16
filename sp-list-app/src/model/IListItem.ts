@@ -1,7 +1,10 @@
+const ID = "Id";
 const COURSE_NAME = "COURSE_NAME"; // Title - SP list column
 const COURSE_CODE = "COURSE_CODE";
 const COURSE_FREQUENCY = "COURSE_FREQUENCY";
 const TARGET_AUDIENCE = "TARGET_AUDIENCE";
+
+export const LIST_FIELDS = `${ID}, Title, ${COURSE_CODE}, ${COURSE_FREQUENCY}, ${TARGET_AUDIENCE}`;
 
 export interface IListItem {
   id?: number;
@@ -11,7 +14,7 @@ export interface IListItem {
   targetAudience: string;
 }
 
-interface IListItemPayload {
+interface ISpListItem {
   id?: number;
   Title: string; // COURSE_NAME
   COURSE_CODE: string;
@@ -19,15 +22,7 @@ interface IListItemPayload {
   TARGET_AUDIENCE: string;
 }
 
-interface IListItemResponseOnPrem {
-  data: {
-    d: {
-      results: any[];
-    };
-  };
-}
-
-const bundleItem = (item: IListItem): IListItemPayload => {
+export const bundleItem = (item: IListItem): ISpListItem => {
   return {
     Title: item[COURSE_NAME], // COURSE_NAME - SP list column
     COURSE_CODE: item[COURSE_CODE],
@@ -50,42 +45,16 @@ export const bundleDataForOnPrem = (
   return JSON.stringify(onPremData);
 };
 
-export const extractSpListItems = (
-  spResponse: any,
-  spOnline: boolean
-): IListItem[] => {
-  let items: IListItem[] = [];
-  let listItems: any[] = [];
-
-  if (spOnline) {
-    if (spResponse?.value) {
-      listItems = spResponse.value;
-    }
-  } else if (spResponse?.data?.d?.results?.length) {
-    listItems = spResponse.data.d.results;
-  }
-
-  items = listItems.map((item) => {
-    let itemData = undefined;
-    let id = "Id";
-    if (spOnline) {
-      const onlineItem: IListItemPayload = item;
-      itemData = onlineItem;
-    } else {
-      const onPremItem: IListItemResponseOnPrem = item;
-      itemData = onPremItem;
-    }
-    if (itemData) {
-      return {
-        id: itemData[id],
-        courseName: itemData.Title,
-        courseCode: itemData[COURSE_CODE],
-        courseFrequency: itemData[COURSE_FREQUENCY],
-        targetAudience: itemData[TARGET_AUDIENCE],
-      };
-    }
+export const extractSpListItems = (spListItems: ISpListItem[]): IListItem[] => {
+  const items: IListItem[] = spListItems.map((item) => {
+    return {
+      id: item[ID],
+      courseName: item.Title,
+      courseCode: item[COURSE_CODE],
+      courseFrequency: item[COURSE_FREQUENCY],
+      targetAudience: item[TARGET_AUDIENCE],
+    };
   });
-
   return items;
 };
 
