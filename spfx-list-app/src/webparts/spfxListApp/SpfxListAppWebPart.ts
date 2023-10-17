@@ -67,4 +67,3 @@ export default class SpfxListAppWebPart extends BaseClientSideWebPart<ISpfxListA
     };
   }
 }
-0;

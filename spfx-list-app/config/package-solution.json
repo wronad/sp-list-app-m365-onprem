@@ -3,7 +3,7 @@
   "solution": {
     "name": "spfx-list-app-client-side-solution",
     "id": "a0c9801e-fa75-4618-8bc9-992ade22b3b4",
-    "version": "1.0.0.6",
+    "version": "1.0.0.8",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
