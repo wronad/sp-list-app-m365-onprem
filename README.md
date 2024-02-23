@@ -12,14 +12,6 @@ Example SP react app that reads list and adds items to list. The app's two varia
 
     **${SITE_URL}/\_api/contextinfo**
 
-## Reference Project
-
-Modified project to create app, reference project:
-
-```
-https://github.com/mgwojciech/unit-test-samples/tree/sample/react+spfx-wp/spfx-wp-react-app
-```
-
 ## Prerequisites
 
 ### Required tools
